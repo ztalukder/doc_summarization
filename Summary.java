@@ -1,11 +1,11 @@
 import java.io.*;
 import java.util.*;
+import java.text.BreakIterator;
 
 public class Summary {
 
     public static void main(String[] args) throws IOException{
-        // Prints "Hello, World" to the terminal window.
-
+    
         String file = "doors.txt";
         BufferedReader reader = new BufferedReader(new FileReader(file));
         StringBuilder builder = new StringBuilder();
@@ -17,17 +17,35 @@ public class Summary {
         reader.close();
 
         String str = builder.toString();
-        // System.out.println(str);
-        // return;
-        String[] sentences = str.split("\\.");
-        int numSentences = sentences.length;
-
-
+        
+        // container for starting index of sentences
+        ArrayList<Integer> sentences = new ArrayList<Integer>();
+        
+        BreakIterator sentenceBreak = BreakIterator.getSentenceInstance();
+        sentenceBreak.setText(str);
+        int start = sentenceBreak.first();
+        for (int end = sentenceBreak.next();
+                end != sentenceBreak.DONE;
+                start = end, end = sentenceBreak.next()) {
+            
+            sentences.add(start);
+        }
+        
+        int numSentences = sentences.size();
+        
         Map<String, Integer> occurance = new HashMap<String, Integer>();
 
         String[] words;
-        for(String singleSentence: sentences){
-            words = singleSentence.split("\\s+");
+        for(int i = 0; i < sentences.size(); i++){
+            int begin = sentences.get(i);
+            int end = (i == sentences.size() - 1) 
+                        ? str.length() : sentences.get(i + 1);
+            String singleSentence = str.substring(begin, end);
+            
+            // remove punctuation and convert to lowercase and then split
+            // on white spaces
+            words = singleSentence.replaceAll("[^a-zA-Z ]", "")
+                    .toLowerCase().split("\\s+");
             for(String singleWord: words){
                 if(occurance.containsKey(singleWord)){
                     int count = occurance.get(singleWord) + 1;
@@ -37,7 +55,7 @@ public class Summary {
                 }
             }
         }
-
+        
         // for (Map.Entry entry : occurance.entrySet()){
         //     System.out.println("key: " + entry.getKey() + "; value: " + entry.getValue());
         // }
