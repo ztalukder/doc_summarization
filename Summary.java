@@ -80,9 +80,6 @@ public class Summary {
             }
         }
         
-        // for (Map.Entry entry : occurance.entrySet()){
-        //     System.out.println("key: " + entry.getKey() + "; value: " + entry.getValue());
-        // }
         List<Map.Entry<String, Integer>> list = new ArrayList<>(occurance.entrySet());
         list.sort(Map.Entry.comparingByValue());
 
@@ -93,6 +90,23 @@ public class Summary {
         }
 
         System.out.printf("Number of sentences: %d\n", numSentences);
+        
+        /*
+        TODO - assign each sentence an initial score based on term frequency
+        */
+        
+        /*
+        TODO - create an n x n container where n is the number of sentences
+        
+        value at position i, j is the similarity between i and j
+        similarity = (number of words in both / total number of words in i)
+        
+        if j contains 2 instances of a word that occurs in i, would that count only once or twice
+        */
+        
+        /*
+        TODO - apply the page rank algorithm on the sentences
+        */
     }
 
 }
