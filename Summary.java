@@ -44,9 +44,8 @@ public class Summary {
         
         // Map<String, Integer> occurance = new HashMap<String, Integer>();
         Map<String, Integer> sentenceCount = new HashMap<String, Integer>();
-        
-        String[] words;
         ArrayList<Sentence> theSentences = new ArrayList<Sentence>();
+        
         for(int i = 0; i < sentences.size(); i++){
             int begin = sentences.get(i);
             int end = (i == sentences.size() - 1) 
@@ -62,6 +61,10 @@ public class Summary {
                     sentenceCount.put(word, 1);
                 }
             }
+            theSentences.add(currSentence);
+        }
+        for (Sentence s : theSentences){
+            System.out.println(s.getLength() + ": " + s.getSentence());
         }
         
         // List<Map.Entry<String, Integer>> list = new ArrayList<>(occurance.entrySet());
@@ -73,7 +76,7 @@ public class Summary {
         //         sentenceCount.get(entry.getKey()));
         // }
         // System.out.printf("Number of sentences: %d\n", numSentences);
-        
+
         /*
         TODO - replace everything up there with the sentence class and test it
         */
