@@ -10,14 +10,18 @@ public class Sentence {
     private final String sentence;
     private final int length;
     private Map<String, Integer> frequency;
+        // TODO: there's a better way to do this right?        
+    private ArrayList<String> currentSentence = new ArrayList<String>();
     
     public Sentence(String s) {
         sentence = s;
         frequency = new HashMap<String, Integer>();
-        
+
+        // remove punctuation and convert to lowercase and then split
+        // on white spaces
         String[] words = s.replaceAll("[^a-zA-Z ]", "")
             .toLowerCase().split("\\s+");
-        
+
         length = words.length;
         
         for(String singleWord: words){
@@ -26,6 +30,9 @@ public class Sentence {
                 frequency.put(singleWord, count);
             } else {
                 frequency.put(singleWord, 1);
+            }
+            if (!currentSentence.contains(singleWord)) {
+                currentSentence.add(singleWord);
             }
         }
     }
@@ -40,6 +47,10 @@ public class Sentence {
     
     public Map<String, Integer> getFrequency() {
         return frequency;
+    }
+
+    public ArrayList<String> getCurrentSentence(){
+        return currentSentence;
     }
     
     private double calculateK(double averageLength) {

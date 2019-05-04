@@ -42,37 +42,19 @@ public class Summary {
         
         int numSentences = sentences.size();
         
-        Map<String, Integer> occurance = new HashMap<String, Integer>();
+        // Map<String, Integer> occurance = new HashMap<String, Integer>();
         Map<String, Integer> sentenceCount = new HashMap<String, Integer>();
         
         String[] words;
+        ArrayList<Sentence> theSentences = new ArrayList<Sentence>();
         for(int i = 0; i < sentences.size(); i++){
             int begin = sentences.get(i);
             int end = (i == sentences.size() - 1) 
                         ? str.length() : sentences.get(i + 1);
-            String singleSentence = str.substring(begin, end);
+
+            Sentence currSentence = new Sentence(str.substring(begin, end));
             
-            // TODO: there's a better way to do this right?
-            ArrayList<String> currentSentence = new ArrayList<String>();
-                
-            // remove punctuation and convert to lowercase and then split
-            // on white spaces
-            words = singleSentence.replaceAll("[^a-zA-Z ]", "")
-                    .toLowerCase().split("\\s+");
-            for(String singleWord: words){
-                if(occurance.containsKey(singleWord)){
-                    int count = occurance.get(singleWord) + 1;
-                    occurance.put(singleWord, count);
-                } else {
-                    occurance.put(singleWord, 1);
-                }
-                
-                if (!currentSentence.contains(singleWord)) {
-                    currentSentence.add(singleWord);
-                }
-            }
-            
-            for (String word : currentSentence) {
+            for (String word : currSentence.getCurrentSentence()) {
                 if (sentenceCount.containsKey(word)) {
                     int count = sentenceCount.get(word) + 1;
                     sentenceCount.put(word, count);
@@ -82,16 +64,16 @@ public class Summary {
             }
         }
         
-        List<Map.Entry<String, Integer>> list = new ArrayList<>(occurance.entrySet());
-        list.sort(Map.Entry.comparingByValue());
+        // List<Map.Entry<String, Integer>> list = new ArrayList<>(occurance.entrySet());
+        // list.sort(Map.Entry.comparingByValue());
 
-        for(Map.Entry<String, Integer> entry : list){
-            System.out.printf("key: %s; occurences: %d; sentences: %d\n",
-                entry.getKey(), entry.getValue(),
-                sentenceCount.get(entry.getKey()));
-        }
-
-        System.out.printf("Number of sentences: %d\n", numSentences);
+        // for(Map.Entry<String, Integer> entry : list){
+        //     System.out.printf("key: %s; occurences: %d; sentences: %d\n",
+        //         entry.getKey(), entry.getValue(),
+        //         sentenceCount.get(entry.getKey()));
+        // }
+        // System.out.printf("Number of sentences: %d\n", numSentences);
+        
         /*
         TODO - replace everything up there with the sentence class and test it
         */
