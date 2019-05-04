@@ -95,6 +95,8 @@ public class Summary {
         TODO - create an n x n container where n is the number of sentences
         
         Sentence has a getSimilarity() function
+        you are comparing every setence with every other sentence 
+        so double for loop and call Sentences[i].similiarFunction(Setnences[j]) and save it in a n by n container
         */
         
         /*
