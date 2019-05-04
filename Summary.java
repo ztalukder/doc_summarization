@@ -1,3 +1,5 @@
+//package edu.nyu.bigdata.summary;
+
 import java.io.*;
 import java.util.*;
 import java.text.BreakIterator;
@@ -90,18 +92,18 @@ public class Summary {
         }
 
         System.out.printf("Number of sentences: %d\n", numSentences);
+        /*
+        TODO - replace everything up there with the sentence class and test it
+        */
         
         /*
-        TODO - assign each sentence an initial score based on term frequency
+        TODO - call the calculateBM25() function to get sentence rank
         */
         
         /*
         TODO - create an n x n container where n is the number of sentences
         
-        value at position i, j is the similarity between i and j
-        similarity = (number of words in both / total number of words in i)
-        
-        if j contains 2 instances of a word that occurs in i, would that count only once or twice
+        Sentence has a getSimilarity() function
         */
         
         /*
