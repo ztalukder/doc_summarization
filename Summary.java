@@ -45,14 +45,15 @@ public class Summary {
         // Map<String, Integer> occurance = new HashMap<String, Integer>();
         Map<String, Integer> sentenceCount = new HashMap<String, Integer>();
         ArrayList<Sentence> theSentences = new ArrayList<Sentence>();
-        
+        double averageLength = 0;
         for(int i = 0; i < sentences.size(); i++){
             int begin = sentences.get(i);
             int end = (i == sentences.size() - 1) 
                         ? str.length() : sentences.get(i + 1);
 
             Sentence currSentence = new Sentence(str.substring(begin, end));
-            
+            averageLength += currSentence.getLength();
+
             for (String word : currSentence.getCurrentSentence()) {
                 if (sentenceCount.containsKey(word)) {
                     int count = sentenceCount.get(word) + 1;
@@ -63,10 +64,10 @@ public class Summary {
             }
             theSentences.add(currSentence);
         }
-        for (Sentence s : theSentences){
-            System.out.println(s.getLength() + ": " + s.getSentence());
-        }
-        
+        averageLength /= (double) theSentences.size();
+
+
+
         // List<Map.Entry<String, Integer>> list = new ArrayList<>(occurance.entrySet());
         // list.sort(Map.Entry.comparingByValue());
 
@@ -82,9 +83,14 @@ public class Summary {
         */
         
         /*
-        TODO - call the calculateBM25() function to get sentence rank
+        Call the calculateBM25() function to get sentence rank
         */
-        
+        //BM-25 Array
+        ArrayList<Double> bm25Array = new ArrayList<Double>();
+        for (Sentence s : theSentences){
+            bm25Array.add(s.calculateBM25(averageLength, sentenceCount, sentenceCount.size()));
+        }
+        System.out.println(bm25Array);
         /*
         TODO - create an n x n container where n is the number of sentences
         
