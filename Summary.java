@@ -66,8 +66,6 @@ public class Summary {
         }
         averageLength /= (double) theSentences.size();
 
-
-
         // List<Map.Entry<String, Integer>> list = new ArrayList<>(occurance.entrySet());
         // list.sort(Map.Entry.comparingByValue());
 
@@ -88,7 +86,7 @@ public class Summary {
         //BM-25 Array
         Map<Sentence, Double> bm25map = new HashMap<Sentence, Double>();
         for (Sentence s : theSentences){
-            bm25map.put(s, s.calculateBM25(averageLength, sentenceCount, sentenceCount.size()));
+            bm25map.put(s, s.calculateBM25(averageLength, sentenceCount, theSentences.size()));
         }
         System.out.println(bm25map);
         /*
@@ -98,7 +96,12 @@ public class Summary {
         you are comparing every setence with every other sentence 
         so double for loop and call Sentences[i].similiarFunction(Setnences[j]) and save it in a n by n container
         */
-        
+        double[][] similiarityContainer = new double[theSentences.size()][theSentences.size()];
+        // for(int i = 0; i < similiarityContainer.size(); i++){
+        //     for(int j = 0; j < similiarityContainer.size(); j++){
+                
+        //     }
+        // }
         /*
         TODO - apply the page rank algorithm on the sentences
         */
