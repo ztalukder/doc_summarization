@@ -86,11 +86,11 @@ public class Summary {
         Call the calculateBM25() function to get sentence rank
         */
         //BM-25 Array
-        ArrayList<Double> bm25Array = new ArrayList<Double>();
+        Map<Sentence, Double> bm25map = new HashMap<Sentence, Double>();
         for (Sentence s : theSentences){
-            bm25Array.add(s.calculateBM25(averageLength, sentenceCount, sentenceCount.size()));
+            bm25map.put(s, s.calculateBM25(averageLength, sentenceCount, sentenceCount.size()));
         }
-        System.out.println(bm25Array);
+        System.out.println(bm25map);
         /*
         TODO - create an n x n container where n is the number of sentences
         
