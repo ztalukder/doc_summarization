@@ -10,13 +10,13 @@ public class Sentence {
     private final String sentence;
     private final int length;
     private Map<String, Integer> frequency;
-        // TODO: there's a better way to do this right?        
+    private double bm25val;
+    // TODO: there's a better way to do this right?        
     private ArrayList<String> currentSentence = new ArrayList<String>();
-    
     public Sentence(String s) {
         sentence = s;
         frequency = new HashMap<String, Integer>();
-
+        bm25val = -1;
         // remove punctuation and convert to lowercase and then split
         // on white spaces
         String[] words = s.replaceAll("[^a-zA-Z ]", "")
@@ -59,7 +59,6 @@ public class Sentence {
         result += (1 - B_CONSTANT);
         return K_CONSTANT * result;
     }
-    
     public double calculateBM25(double averageLength, 
                                 Map<String, Integer> termOccurence,
                                 int sentenceNum) {
@@ -77,8 +76,8 @@ public class Sentence {
             kSide = kSide / (K + entry.getValue());
             
             result += (logSide * kSide);
-        }
-        
+        }   
+        bm25val = result;
         return result;
     }
     
