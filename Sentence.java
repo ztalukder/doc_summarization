@@ -13,6 +13,8 @@ public class Sentence {
     private double bm25val;
     // TODO: there's a better way to do this right?        
     private ArrayList<String> currentSentence = new ArrayList<String>();
+    private double sumSimilarities;
+    private double pageRank;
     public Sentence(String s) {
         sentence = s;
         frequency = new HashMap<String, Integer>();
@@ -43,6 +45,22 @@ public class Sentence {
     
     public int getLength() {
         return length;
+    }
+
+    public void setSumSimilarity(double num){
+        sumSimilarities = num;
+    }
+
+    public double getSumSimilarity(){
+        return sumSimilarities;
+    }
+
+    public void setPageRank(double num){
+        pageRank = num;
+    }
+
+    public double getPageRank(){
+        return pageRank;
     }
     
     public Map<String, Integer> getFrequency() {
@@ -128,5 +146,9 @@ public class Sentence {
             0 : getFrequency().hashCode());
             
         return hash;
+    }
+
+    public String toString(){
+        return sentence;
     }
 }

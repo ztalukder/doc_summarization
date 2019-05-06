@@ -88,7 +88,7 @@ public class Summary {
         for (Sentence s : theSentences){
             bm25map.put(s, s.calculateBM25(averageLength, sentenceCount, theSentences.size()));
         }
-        System.out.println(bm25map);
+        // System.out.println(bm25map);
         /*
         TODO - create an n x n container where n is the number of sentences
         
@@ -96,15 +96,66 @@ public class Summary {
         you are comparing every setence with every other sentence 
         so double for loop and call Sentences[i].similiarFunction(Setnences[j]) and save it in a n by n container
         */
-        double[][] similiarityContainer = new double[theSentences.size()][theSentences.size()];
-        // for(int i = 0; i < similiarityContainer.size(); i++){
-        //     for(int j = 0; j < similiarityContainer.size(); j++){
-                
-        //     }
-        // }
+        double[][] similarityContainer = new double[theSentences.size()][theSentences.size()];
+        for(int i = 0; i < similarityContainer.length; i++){
+            for(int j = 0; j < similarityContainer[i].length; j++){
+                similarityContainer[i][j] = theSentences.get(i).getSimilarity(theSentences.get(j));
+            }
+        }
+
+        
+
+
+
+
+
+
+        // System.out.println(similiarityContainer);
         /*
         TODO - apply the page rank algorithm on the sentences
         */
+
+        double total;
+        for(int i = 0; i < similarityContainer.length; i++){
+            total = 0;
+            for(int j = 0; j < similarityContainer[i].length; j++){
+                total += similarityContainer[i][j];
+            }
+            theSentences.get(i).setSumSimilarity(total);
+        }
+
+        double dampingFactor = .05;
+        int iterations = 20;
+        double initialValue = 1.0/theSentences.size();
+
+        for(int i = 0; i < theSentences.size(); i++){
+            theSentences.get(i).setPageRank(initialValue);
+        }
+
+        
+        double newPageRank;
+        for(int iter = 0; iter < iterations; iter++){
+            for(int i = 0; i < theSentences.size(); i++){
+                newPageRank = (1-dampingFactor);
+                for(int j = 0; j < similarityContainer[i].length; j++){
+                    if( i != j){
+                        newPageRank += dampingFactor*theSentences.get(j).getPageRank()*similarityContainer[i][j]/theSentences.get(j).getSumSimilarity();
+                    }
+                }
+                theSentences.get(i).setPageRank(newPageRank);
+            }
+        }
+
+        Comparator<Sentence> compareByPageRank = (Sentence s1, Sentence s2) -> ((Double)(s2.getPageRank())).compareTo( (Double)(s1.getPageRank()) );
+        Collections.sort(theSentences, compareByPageRank);
+
+
+
+        for(int i = 0; i < 5; i++){
+            System.out.println(theSentences.get(i).getPageRank());
+            System.out.println(theSentences.get(i).getSentence());
+
+        }
     }
 
 }
