@@ -7,6 +7,7 @@ public class Sentence {
     private static final double K_CONSTANT = 1.2;
     private static final double B_CONSTANT = 0.75;
     
+    private final int sentenceNumber;
     private final String sentence;
     private final int length;
     private Map<String, Integer> frequency;
@@ -15,7 +16,9 @@ public class Sentence {
     private ArrayList<String> currentSentence = new ArrayList<String>();
     private double sumSimilarities;
     private double pageRank;
-    public Sentence(String s) {
+    
+    public Sentence(int sentenceNumber, String s) {
+        this.sentenceNumber = sentenceNumber;
         sentence = s;
         frequency = new HashMap<String, Integer>();
         bm25val = -1;
@@ -39,12 +42,27 @@ public class Sentence {
         }
     }
     
+    public Sentence(Sentence other) {
+        this(other.getSentenceNumber(), other.getSentence());
+        this.bm25val = other.getBM25Val();
+        this.pageRank = other.getPageRank();
+        // TODO - do we need anything else in this copy constructor?
+    }
+    
+    public int getSentenceNumber() {
+        return sentenceNumber;
+    }
+    
     public String getSentence() {
         return sentence;
     }
     
     public int getLength() {
         return length;
+    }
+    
+    public double getBM25Val() {
+        return bm25val;
     }
 
     public void setSumSimilarity(double num){
@@ -124,6 +142,10 @@ public class Sentence {
         
         Sentence obj = (Sentence) o;
         
+        if (getSentenceNumber() != obj.getSentenceNumber()) {
+            return false;
+        }
+        
         if (getLength() != obj.getLength()) {
             return false;
         }
@@ -144,6 +166,9 @@ public class Sentence {
             
         hash = 31 * hash + (getFrequency() == null ?
             0 : getFrequency().hashCode());
+            
+        hash = 31 * hash + (Integer.valueOf(getSentenceNumber()) == null ?
+            0 : Integer.valueOf(getSentenceNumber()).hashCode());
             
         return hash;
     }

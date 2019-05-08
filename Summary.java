@@ -7,13 +7,21 @@ import java.text.BreakIterator;
 public class Summary {
 
     public static void main(String[] args) throws IOException{
-    
+        boolean useBM25 = true;
         String file;
         if (args.length == 0) {
             file = "doors.txt";
         }
         else {
             file = args[0];
+            
+            if (args.length > 1 && args[1].equals("pr")) {
+                System.out.printf("==========USING PAGERANK==========\n");
+                useBM25 = false;
+            }
+            else {
+                System.out.printf("============USING BM25============\n");
+            }
         }
             
         BufferedReader reader = new BufferedReader(new FileReader(file));
@@ -51,7 +59,7 @@ public class Summary {
             int end = (i == sentences.size() - 1) 
                         ? str.length() : sentences.get(i + 1);
 
-            Sentence currSentence = new Sentence(str.substring(begin, end));
+            Sentence currSentence = new Sentence(i, str.substring(begin, end));
             averageLength += currSentence.getLength();
 
             for (String word : currSentence.getCurrentSentence()) {
@@ -65,55 +73,17 @@ public class Summary {
             theSentences.add(currSentence);
         }
         averageLength /= (double) theSentences.size();
-
-        // List<Map.Entry<String, Integer>> list = new ArrayList<>(occurance.entrySet());
-        // list.sort(Map.Entry.comparingByValue());
-
-        // for(Map.Entry<String, Integer> entry : list){
-        //     System.out.printf("key: %s; occurences: %d; sentences: %d\n",
-        //         entry.getKey(), entry.getValue(),
-        //         sentenceCount.get(entry.getKey()));
-        // }
-        // System.out.printf("Number of sentences: %d\n", numSentences);
-
-        /*
-        TODO - replace everything up there with the sentence class and test it
-        */
         
-        /*
-        Call the calculateBM25() function to get sentence rank
-        */
-        //BM-25 Array
-        Map<Sentence, Double> bm25map = new HashMap<Sentence, Double>();
-        for (Sentence s : theSentences){
-            bm25map.put(s, s.calculateBM25(averageLength, sentenceCount, theSentences.size()));
+        for (int i = 0; i < theSentences.size(); i++) {
+            theSentences.get(i).calculateBM25(averageLength, sentenceCount, theSentences.size());
         }
-        // System.out.println(bm25map);
-        /*
-        TODO - create an n x n container where n is the number of sentences
         
-        Sentence has a getSimilarity() function
-        you are comparing every setence with every other sentence 
-        so double for loop and call Sentences[i].similiarFunction(Setnences[j]) and save it in a n by n container
-        */
         double[][] similarityContainer = new double[theSentences.size()][theSentences.size()];
         for(int i = 0; i < similarityContainer.length; i++){
             for(int j = 0; j < similarityContainer[i].length; j++){
                 similarityContainer[i][j] = theSentences.get(i).getSimilarity(theSentences.get(j));
             }
         }
-
-        
-
-
-
-
-
-
-        // System.out.println(similiarityContainer);
-        /*
-        TODO - apply the page rank algorithm on the sentences
-        */
 
         double total;
         for(int i = 0; i < similarityContainer.length; i++){
@@ -132,7 +102,7 @@ public class Summary {
             theSentences.get(i).setPageRank(initialValue);
         }
 
-        
+        // TODO - might need to fix this
         double newPageRank;
         for(int iter = 0; iter < iterations; iter++){
             for(int i = 0; i < theSentences.size(); i++){
@@ -145,17 +115,42 @@ public class Summary {
                 theSentences.get(i).setPageRank(newPageRank);
             }
         }
-
-        Comparator<Sentence> compareByPageRank = (Sentence s1, Sentence s2) -> ((Double)(s2.getPageRank())).compareTo( (Double)(s1.getPageRank()) );
-        Collections.sort(theSentences, compareByPageRank);
-
-
-
-        for(int i = 0; i < 5; i++){
-            System.out.println(theSentences.get(i).getPageRank());
-            System.out.println(theSentences.get(i).getSentence());
-
+        
+        if (useBM25) {
+            Comparator<Sentence> compareByBM25 = 
+                (Sentence s1, Sentence s2) -> ((Double)(s2.getBM25Val())).compareTo( (Double)(s1.getBM25Val()) );
+            Collections.sort(theSentences, compareByBM25);
         }
+        else {
+            Comparator<Sentence> compareByPageRank = 
+                (Sentence s1, Sentence s2) -> ((Double)(s2.getPageRank())).compareTo( (Double)(s1.getPageRank()) );
+            Collections.sort(theSentences, compareByPageRank);
+        }
+        
+        // TODO - remove after we fix pagerank
+        for (int i = 0; i < theSentences.size(); i++) {
+            System.out.printf("Sentence #%s\tPageRank: %f\n", theSentences.get(i).getSentenceNumber(), theSentences.get(i).getPageRank());
+        }
+            
+        ArrayList<Sentence> topSentences = new ArrayList<Sentence>();
+        for (int i = 0; i < 5; i++) {
+            topSentences.add(new Sentence(theSentences.get(i)));
+        }
+        
+        Comparator<Sentence> compareBySentenceNumber = 
+            (Sentence s1, Sentence s2) -> ((Integer)(s1.getSentenceNumber())).compareTo((Integer)(s2.getSentenceNumber()));
+        Collections.sort(topSentences, compareBySentenceNumber);
+        
+        for (int i = 0; i < topSentences.size(); i++) {
+            System.out.printf("Sentence #%d\tBM25: %f\tSentence Rank: %f\n>>>\t%s\n\n",
+                                topSentences.get(i).getSentenceNumber(),
+                                topSentences.get(i).getBM25Val(),
+                                topSentences.get(i).getPageRank(),
+                                topSentences.get(i).getSentence());
+        }
+        System.out.printf("==================================\n==================================\n");
     }
 
 }
+
+// TODO - REMOVE ALL THE TODO comments after we are done
