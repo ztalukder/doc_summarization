@@ -10,14 +10,20 @@ public class Sentence {
     private final String sentence;
     private final int length;
     private Map<String, Integer> frequency;
-    
+    private double bm25val;
+    // TODO: there's a better way to do this right?        
+    private ArrayList<String> currentSentence = new ArrayList<String>();
+    private double sumSimilarities;
+    private double pageRank;
     public Sentence(String s) {
         sentence = s;
         frequency = new HashMap<String, Integer>();
-        
+        bm25val = -1;
+        // remove punctuation and convert to lowercase and then split
+        // on white spaces
         String[] words = s.replaceAll("[^a-zA-Z ]", "")
             .toLowerCase().split("\\s+");
-        
+
         length = words.length;
         
         for(String singleWord: words){
@@ -26,6 +32,9 @@ public class Sentence {
                 frequency.put(singleWord, count);
             } else {
                 frequency.put(singleWord, 1);
+            }
+            if (!currentSentence.contains(singleWord)) {
+                currentSentence.add(singleWord);
             }
         }
     }
@@ -37,9 +46,29 @@ public class Sentence {
     public int getLength() {
         return length;
     }
+
+    public void setSumSimilarity(double num){
+        sumSimilarities = num;
+    }
+
+    public double getSumSimilarity(){
+        return sumSimilarities;
+    }
+
+    public void setPageRank(double num){
+        pageRank = num;
+    }
+
+    public double getPageRank(){
+        return pageRank;
+    }
     
     public Map<String, Integer> getFrequency() {
         return frequency;
+    }
+
+    public ArrayList<String> getCurrentSentence(){
+        return currentSentence;
     }
     
     private double calculateK(double averageLength) {
@@ -48,7 +77,6 @@ public class Sentence {
         result += (1 - B_CONSTANT);
         return K_CONSTANT * result;
     }
-    
     public double calculateBM25(double averageLength, 
                                 Map<String, Integer> termOccurence,
                                 int sentenceNum) {
@@ -66,8 +94,8 @@ public class Sentence {
             kSide = kSide / (K + entry.getValue());
             
             result += (logSide * kSide);
-        }
-        
+        }   
+        bm25val = result;
         return result;
     }
     
@@ -118,5 +146,9 @@ public class Sentence {
             0 : getFrequency().hashCode());
             
         return hash;
+    }
+
+    public String toString(){
+        return sentence;
     }
 }

@@ -42,37 +42,19 @@ public class Summary {
         
         int numSentences = sentences.size();
         
-        Map<String, Integer> occurance = new HashMap<String, Integer>();
+        // Map<String, Integer> occurance = new HashMap<String, Integer>();
         Map<String, Integer> sentenceCount = new HashMap<String, Integer>();
-        
-        String[] words;
+        ArrayList<Sentence> theSentences = new ArrayList<Sentence>();
+        double averageLength = 0;
         for(int i = 0; i < sentences.size(); i++){
             int begin = sentences.get(i);
             int end = (i == sentences.size() - 1) 
                         ? str.length() : sentences.get(i + 1);
-            String singleSentence = str.substring(begin, end);
-            
-            // TODO: there's a better way to do this right?
-            ArrayList<String> currentSentence = new ArrayList<String>();
-                
-            // remove punctuation and convert to lowercase and then split
-            // on white spaces
-            words = singleSentence.replaceAll("[^a-zA-Z ]", "")
-                    .toLowerCase().split("\\s+");
-            for(String singleWord: words){
-                if(occurance.containsKey(singleWord)){
-                    int count = occurance.get(singleWord) + 1;
-                    occurance.put(singleWord, count);
-                } else {
-                    occurance.put(singleWord, 1);
-                }
-                
-                if (!currentSentence.contains(singleWord)) {
-                    currentSentence.add(singleWord);
-                }
-            }
-            
-            for (String word : currentSentence) {
+
+            Sentence currSentence = new Sentence(str.substring(begin, end));
+            averageLength += currSentence.getLength();
+
+            for (String word : currSentence.getCurrentSentence()) {
                 if (sentenceCount.containsKey(word)) {
                     int count = sentenceCount.get(word) + 1;
                     sentenceCount.put(word, count);
@@ -80,35 +62,100 @@ public class Summary {
                     sentenceCount.put(word, 1);
                 }
             }
+            theSentences.add(currSentence);
         }
-        
-        List<Map.Entry<String, Integer>> list = new ArrayList<>(occurance.entrySet());
-        list.sort(Map.Entry.comparingByValue());
+        averageLength /= (double) theSentences.size();
 
-        for(Map.Entry<String, Integer> entry : list){
-            System.out.printf("key: %s; occurences: %d; sentences: %d\n",
-                entry.getKey(), entry.getValue(),
-                sentenceCount.get(entry.getKey()));
-        }
+        // List<Map.Entry<String, Integer>> list = new ArrayList<>(occurance.entrySet());
+        // list.sort(Map.Entry.comparingByValue());
 
-        System.out.printf("Number of sentences: %d\n", numSentences);
+        // for(Map.Entry<String, Integer> entry : list){
+        //     System.out.printf("key: %s; occurences: %d; sentences: %d\n",
+        //         entry.getKey(), entry.getValue(),
+        //         sentenceCount.get(entry.getKey()));
+        // }
+        // System.out.printf("Number of sentences: %d\n", numSentences);
+
         /*
         TODO - replace everything up there with the sentence class and test it
         */
         
         /*
-        TODO - call the calculateBM25() function to get sentence rank
+        Call the calculateBM25() function to get sentence rank
         */
-        
+        //BM-25 Array
+        Map<Sentence, Double> bm25map = new HashMap<Sentence, Double>();
+        for (Sentence s : theSentences){
+            bm25map.put(s, s.calculateBM25(averageLength, sentenceCount, theSentences.size()));
+        }
+        // System.out.println(bm25map);
         /*
         TODO - create an n x n container where n is the number of sentences
         
         Sentence has a getSimilarity() function
+        you are comparing every setence with every other sentence 
+        so double for loop and call Sentences[i].similiarFunction(Setnences[j]) and save it in a n by n container
         */
+        double[][] similarityContainer = new double[theSentences.size()][theSentences.size()];
+        for(int i = 0; i < similarityContainer.length; i++){
+            for(int j = 0; j < similarityContainer[i].length; j++){
+                similarityContainer[i][j] = theSentences.get(i).getSimilarity(theSentences.get(j));
+            }
+        }
+
         
+
+
+
+
+
+
+        // System.out.println(similiarityContainer);
         /*
         TODO - apply the page rank algorithm on the sentences
         */
+
+        double total;
+        for(int i = 0; i < similarityContainer.length; i++){
+            total = 0;
+            for(int j = 0; j < similarityContainer[i].length; j++){
+                total += similarityContainer[i][j];
+            }
+            theSentences.get(i).setSumSimilarity(total);
+        }
+
+        double dampingFactor = .05;
+        int iterations = 20;
+        double initialValue = 1.0/theSentences.size();
+
+        for(int i = 0; i < theSentences.size(); i++){
+            theSentences.get(i).setPageRank(initialValue);
+        }
+
+        
+        double newPageRank;
+        for(int iter = 0; iter < iterations; iter++){
+            for(int i = 0; i < theSentences.size(); i++){
+                newPageRank = (1-dampingFactor);
+                for(int j = 0; j < similarityContainer[i].length; j++){
+                    if( i != j){
+                        newPageRank += dampingFactor*theSentences.get(j).getPageRank()*similarityContainer[i][j]/theSentences.get(j).getSumSimilarity();
+                    }
+                }
+                theSentences.get(i).setPageRank(newPageRank);
+            }
+        }
+
+        Comparator<Sentence> compareByPageRank = (Sentence s1, Sentence s2) -> ((Double)(s2.getPageRank())).compareTo( (Double)(s1.getPageRank()) );
+        Collections.sort(theSentences, compareByPageRank);
+
+
+
+        for(int i = 0; i < 5; i++){
+            System.out.println(theSentences.get(i).getPageRank());
+            System.out.println(theSentences.get(i).getSentence());
+
+        }
     }
 
 }
