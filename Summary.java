@@ -4,27 +4,63 @@ import java.io.*;
 import java.util.*;
 import java.text.BreakIterator;
 
+class Option {
+     String flag, opt;
+     public Option(String flag, String opt) { this.flag = flag; this.opt = opt; }
+}
+
 public class Summary {
 
     public static void main(String[] args) throws IOException{
+        List<Option> optList = new ArrayList<Option>();
         boolean useBM25 = true;
-        String file;
-        if (args.length == 0) {
-            file = "doors.txt";
-        }
-        else {
-            file = args[0];
-            
-            if (args.length > 1 && args[1].equals("pr")) {
-                System.out.printf("==========USING PAGERANK==========\n");
-                useBM25 = false;
+        String file = "doors.txt";
+        
+        for(int i = 0; i < args.length; i++){
+            switch (args[i].charAt(0)){
+            case '-':
+                if(args[i].length()  < 2){
+                    throw new IllegalArgumentException("Not a valid arguement: " + args[i]);
+                }
+                if(args[i].charAt(1) == '-'){
+                    if(args[i].length() < 3){
+                        throw new IllegalArgumentException("Not a valid arguement: " + args[i]);
+                    }
+                    optList.add(new Option(args[i], args[i].substring(2, args[i].length())));
+                }
+                else{
+                    if(args.length-1 == i){
+                        throw new IllegalArgumentException("Expected arg after: "+args[i]);
+                    }
+                    optList.add(new Option(args[i], args[i+1]));
+                    i++;
+                }
+                break;
             }
-            else {
-                System.out.printf("============USING BM25============\n");
+        }
+        for(int i = 0; i < optList.size(); i++){
+            String flag = optList.get(i).flag; 
+            String option = optList.get(i).opt;
+            if(flag.equals("-d") || flag.equals("--d") ){
+                file = option;
+            }
+            if (flag.equals("-b")  || flag.equals("--b") ){
+                System.out.println("HI");
+                useBM25 = Boolean.valueOf(option);
             }
         }
-            
-        BufferedReader reader = new BufferedReader(new FileReader(file));
+        
+        System.out.println("File: " + file);
+        System.out.println("useBM25: " + useBM25); 
+        
+        BufferedReader reader;
+        try{
+            reader = new BufferedReader(new FileReader(file));
+        }
+        catch(Exception e){
+            System.out.println("Unable to open file.");
+            return;
+        }
         StringBuilder builder = new StringBuilder();
         String currentLine = reader.readLine();
         while(currentLine != null){
@@ -147,10 +183,10 @@ public class Summary {
                                 topSentences.get(i).getBM25Val(),
                                 topSentences.get(i).getPageRank(),
                                 topSentences.get(i).getSentence());
+        
+            System.out.printf("==================================\n==================================\n");
         }
-        System.out.printf("==================================\n==================================\n");
     }
-
 }
 
 // TODO - REMOVE ALL THE TODO comments after we are done
