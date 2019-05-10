@@ -69,33 +69,9 @@ public class Summary {
         
         int numSentences = sentences.size();
         
-        // Map<String, Integer> occurance = new HashMap<String, Integer>();
-        Map<String, Integer> sentenceCount = new HashMap<String, Integer>();
-        ArrayList<Sentence> theSentences = new ArrayList<Sentence>();
-        double averageLength = 0;
-        for(int i = 0; i < sentences.size(); i++){
-            int begin = sentences.get(i);
-            int end = (i == sentences.size() - 1) 
-                        ? str.length() : sentences.get(i + 1);
+        ArrayList<Sentence> theSentences = makeSentences(sentences, str);
 
-            Sentence currSentence = new Sentence(i, str.substring(begin, end));
-            averageLength += currSentence.getLength();
-
-            for (String word : currSentence.getCurrentSentence()) {
-                if (sentenceCount.containsKey(word)) {
-                    int count = sentenceCount.get(word) + 1;
-                    sentenceCount.put(word, count);
-                } else {
-                    sentenceCount.put(word, 1);
-                }
-            }
-            theSentences.add(currSentence);
-        }
-        averageLength /= (double) theSentences.size();
-        
-        for (int i = 0; i < theSentences.size(); i++) {
-            theSentences.get(i).calculateBM25(averageLength, sentenceCount, theSentences.size());
-        }
+        setSentencesBM25(theSentences);
         
         double[][] similarityContainer = new double[theSentences.size()][theSentences.size()];
         for(int i = 0; i < similarityContainer.length; i++){
@@ -160,7 +136,7 @@ public class Summary {
         }
             
         ArrayList<Sentence> topSentences = new ArrayList<Sentence>();
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 5; i++) {
             topSentences.add(new Sentence(theSentences.get(i)));
         }
         
@@ -182,6 +158,69 @@ public class Summary {
 
     }
 
+    public static String getFileString(String fileName){
+        BufferedReader reader = null;
+        try{
+            reader = new BufferedReader(new FileReader(fileName));
+        }
+        catch(Exception e){
+            System.out.println("Unable to open file.");
+            System.exit(0);
+        }
+        StringBuilder builder = new StringBuilder();
+        try{
+            String currentLine = reader.readLine();
+            while(currentLine != null){
+                builder.append(currentLine);
+                currentLine = reader.readLine();
+            }
+            reader.close();
+        }
+        catch(IOException e){
+            System.out.println("Error reading line.");
+            System.exit(0);
+        }
+
+        return builder.toString();
+
+    }
+
+    //sentences is a list of starting indices for each sentence, str is the entire text in a string
+    public static ArrayList<Sentence> makeSentences(ArrayList<Integer> sentences, String str){
+        ArrayList<Sentence> theSentences = new ArrayList<Sentence>();
+        for(int i = 0; i < sentences.size(); i++){
+            int begin = sentences.get(i);
+            int end = (i == sentences.size() - 1) 
+                        ? str.length() : sentences.get(i + 1);
+            Sentence currSentence = new Sentence(i, str.substring(begin, end));
+            theSentences.add(currSentence);
+        }
+
+        return theSentences;
+    }
+
+    public static void setSentencesBM25(ArrayList<Sentence> theSentences){
+        Map<String, Integer> sentenceCount = new HashMap<String, Integer>();
+        double averageLength = 0;
+        for(int i = 0; i < theSentences.size(); i++){
+            averageLength += theSentences.get(i).getLength();
+
+            for (String word : theSentences.get(i).getCurrentSentence()) {
+                if (sentenceCount.containsKey(word)) {
+                    int count = sentenceCount.get(word) + 1;
+                    sentenceCount.put(word, count);
+                } else {
+                    sentenceCount.put(word, 1);
+                }
+            }
+        }
+        averageLength /= (double) theSentences.size();
+        
+        for (int i = 0; i < theSentences.size(); i++) {
+            theSentences.get(i).calculateBM25(averageLength, sentenceCount, theSentences.size());
+        }
+    }
+
 
     public static void evaluateResults(ArrayList<Sentence> result){
         Sentence idealSummary = new Sentence(1, getFileString("001s.txt"));
@@ -198,35 +237,9 @@ public class Summary {
 
     }
 
-    public static String getFileString(String fileName){
-        BufferedReader reader = null;
-        try{
-            reader = new BufferedReader(new FileReader(fileName));
-        }
-        catch(Exception e){
-            System.out.println("Unable to open file.");
-            System.exit(0);
-        }
-        StringBuilder builder = new StringBuilder();
+    
 
-        try{
-            String currentLine = reader.readLine();
-            while(currentLine != null){
-                builder.append(currentLine);
-                currentLine = reader.readLine();
-            }
-            reader.close();
 
-        }
-        catch(IOException e){
-            System.out.println("Error reading line.");
-            System.exit(0);
-
-        }
-
-        return builder.toString();
-
-    }
 }
 
 // TODO - REMOVE ALL THE TODO comments after we are done
