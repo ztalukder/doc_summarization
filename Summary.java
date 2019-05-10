@@ -14,7 +14,7 @@ public class Summary {
     public static void main(String[] args) throws IOException{
         List<Option> optList = new ArrayList<Option>();
         boolean useBM25 = true;
-        String file = "doors.txt";
+        String file = "001.txt";
         
         for(int i = 0; i < args.length; i++){
             switch (args[i].charAt(0)){
@@ -45,7 +45,6 @@ public class Summary {
                 file = option;
             }
             if (flag.equals("-b")  || flag.equals("--b") ){
-                System.out.println("HI");
                 useBM25 = Boolean.valueOf(option);
             }
         }
@@ -53,23 +52,7 @@ public class Summary {
         System.out.println("File: " + file);
         System.out.println("useBM25: " + useBM25); 
         
-        BufferedReader reader;
-        try{
-            reader = new BufferedReader(new FileReader(file));
-        }
-        catch(Exception e){
-            System.out.println("Unable to open file.");
-            return;
-        }
-        StringBuilder builder = new StringBuilder();
-        String currentLine = reader.readLine();
-        while(currentLine != null){
-            builder.append(currentLine);
-            currentLine = reader.readLine();
-        }
-        reader.close();
-
-        String str = builder.toString();
+        String str = getFileString(file);
         
         // container for starting index of sentences
         ArrayList<Integer> sentences = new ArrayList<Integer>();
@@ -125,14 +108,16 @@ public class Summary {
         for(int i = 0; i < similarityContainer.length; i++){
             total = 0;
             for(int j = 0; j < similarityContainer[i].length; j++){
-                total += similarityContainer[i][j];
+                if(i != j){
+                    total += similarityContainer[i][j];
+                }
             }
             theSentences.get(i).setSumSimilarity(total);
         }
 
         double dampingFactor = .05;
         int iterations = 20;
-        double initialValue = 1.0/theSentences.size();
+        double initialValue = 100/theSentences.size();
 
         for(int i = 0; i < theSentences.size(); i++){
             theSentences.get(i).setPageRank(initialValue);
@@ -140,16 +125,22 @@ public class Summary {
 
         // TODO - might need to fix this
         double newPageRank;
+        double[] updatedRanks = new double[theSentences.size()];
         for(int iter = 0; iter < iterations; iter++){
             for(int i = 0; i < theSentences.size(); i++){
-                newPageRank = (1-dampingFactor);
+                newPageRank = 0;
                 for(int j = 0; j < similarityContainer[i].length; j++){
                     if( i != j){
-                        newPageRank += dampingFactor*theSentences.get(j).getPageRank()*similarityContainer[i][j]/theSentences.get(j).getSumSimilarity();
+                        newPageRank += theSentences.get(j).getPageRank()*similarityContainer[i][j]/theSentences.get(j).getSumSimilarity();
                     }
                 }
-                theSentences.get(i).setPageRank(newPageRank);
+                updatedRanks[i] = newPageRank;
+
             }
+            for(int index = 0; index < theSentences.size(); index++){
+                theSentences.get(index).setPageRank(updatedRanks[index]);
+            }
+
         }
         
         if (useBM25) {
@@ -169,7 +160,7 @@ public class Summary {
         }
             
         ArrayList<Sentence> topSentences = new ArrayList<Sentence>();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 15; i++) {
             topSentences.add(new Sentence(theSentences.get(i)));
         }
         
@@ -186,6 +177,55 @@ public class Summary {
         
             System.out.printf("==================================\n==================================\n");
         }
+
+        evaluateResults(topSentences);
+
+    }
+
+
+    public static void evaluateResults(ArrayList<Sentence> result){
+        Sentence idealSummary = new Sentence(1, getFileString("001s.txt"));
+
+        String resultString = "";
+        for(int i = 0; i < result.size(); i++){
+            resultString += result.get(i);
+        }
+
+        Sentence generatedSummary = new Sentence(1, resultString);
+
+        System.out.printf("Evaluation: %f\n", generatedSummary.getSimilarity(idealSummary));
+
+
+    }
+
+    public static String getFileString(String fileName){
+        BufferedReader reader = null;
+        try{
+            reader = new BufferedReader(new FileReader(fileName));
+        }
+        catch(Exception e){
+            System.out.println("Unable to open file.");
+            System.exit(0);
+        }
+        StringBuilder builder = new StringBuilder();
+
+        try{
+            String currentLine = reader.readLine();
+            while(currentLine != null){
+                builder.append(currentLine);
+                currentLine = reader.readLine();
+            }
+            reader.close();
+
+        }
+        catch(IOException e){
+            System.out.println("Error reading line.");
+            System.exit(0);
+
+        }
+
+        return builder.toString();
+
     }
 }
 
