@@ -12,7 +12,6 @@ public class Sentence {
     private final int length;
     private Map<String, Integer> frequency;
     private double bm25val;
-    // TODO: there's a better way to do this right?        
     private ArrayList<String> currentSentence = new ArrayList<String>();
     private double sumSimilarities;
     private double pageRank;
@@ -46,7 +45,6 @@ public class Sentence {
         this(other.getSentenceNumber(), other.getSentence());
         this.bm25val = other.getBM25Val();
         this.pageRank = other.getPageRank();
-        // TODO - do we need anything else in this copy constructor?
     }
     
     public int getSentenceNumber() {

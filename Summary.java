@@ -60,8 +60,8 @@ public class Summary {
             }
         }
         
-        System.out.println("File: " + file);
-        System.out.println("useBM25: " + useBM25); 
+        System.out.printf("File: %s\t\tAlgorithm: %s\n\n", file,
+                            ((useBM25) ? "BM25" : "PageRank")); 
         
         String str = getFileString(file);
         
@@ -110,7 +110,6 @@ public class Summary {
             theSentences.get(i).setPageRank(initialValue);
         }
 
-        // TODO - might need to fix this
         double newPageRank;
         double[] updatedRanks = new double[theSentences.size()];
         for(int iter = 0; iter < iterations; iter++){
@@ -140,11 +139,6 @@ public class Summary {
                 (Sentence s1, Sentence s2) -> ((Double)(s2.getPageRank())).compareTo( (Double)(s1.getPageRank()) );
             Collections.sort(theSentences, compareByPageRank);
         }
-        
-        // TODO - remove after we fix pagerank
-        for (int i = 0; i < theSentences.size(); i++) {
-            System.out.printf("Sentence #%s\tPageRank: %f\n", theSentences.get(i).getSentenceNumber(), theSentences.get(i).getPageRank());
-        }
             
         ArrayList<Sentence> topSentences = new ArrayList<Sentence>();
         if(theSentences.size() < numSentencesToShow){
@@ -163,7 +157,7 @@ public class Summary {
         Collections.sort(topSentences, compareBySentenceNumber);
         
         for (int i = 0; i < topSentences.size(); i++) {
-            System.out.printf("Sentence #%d\tBM25: %f\tSentence Rank: %f\n>>>\t%s\n\n",
+            System.out.printf("Sentence #%d\tBM25: %.2f\tSentence Rank: %.3f%%\n>>>\t%s\n\n",
                                 topSentences.get(i).getSentenceNumber(),
                                 topSentences.get(i).getBM25Val(),
                                 topSentences.get(i).getPageRank(),
@@ -258,9 +252,4 @@ public class Summary {
 
     }
 
-    
-
-
 }
-
-// TODO - REMOVE ALL THE TODO comments after we are done
