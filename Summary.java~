@@ -15,8 +15,6 @@ public class Summary {
         List<Option> optList = new ArrayList<Option>();
         boolean useBM25 = true;
         String file = "001.txt";
-        boolean hasIdealSummary = false;
-        String idealSummaryFile = "";
         
         for(int i = 0; i < args.length; i++){
             switch (args[i].charAt(0)){
@@ -48,10 +46,6 @@ public class Summary {
             }
             if (flag.equals("-b")  || flag.equals("--b") ){
                 useBM25 = Boolean.valueOf(option);
-            }
-            if(flag.equals("-s") || flag.equals("--s")){
-            	hasIdealSummary = true;
-            	idealSummaryFile = option;
             }
         }
         
@@ -160,10 +154,7 @@ public class Summary {
             System.out.printf("==================================\n==================================\n");
         }
 
-        if(hasIdealSummary){
-        	evaluateResults(topSentences, idealSummaryFile);	
-        }
-        
+        evaluateResults(topSentences);
 
     }
 
@@ -231,8 +222,8 @@ public class Summary {
     }
 
 
-    public static void evaluateResults(ArrayList<Sentence> result, String idealSummaryFile){
-        Sentence idealSummary = new Sentence(1, getFileString(idealSummaryFile));
+    public static void evaluateResults(ArrayList<Sentence> result){
+        Sentence idealSummary = new Sentence(1, getFileString("001s.txt"));
 
         String resultString = "";
         for(int i = 0; i < result.size(); i++){
