@@ -17,6 +17,8 @@ public class Summary {
         String file = "001.txt";
         boolean hasIdealSummary = false;
         String idealSummaryFile = "";
+
+        int numSentencesToShow = 5;
         
         for(int i = 0; i < args.length; i++){
             switch (args[i].charAt(0)){
@@ -52,6 +54,9 @@ public class Summary {
             if(flag.equals("-s") || flag.equals("--s")){
             	hasIdealSummary = true;
             	idealSummaryFile = option;
+            }
+            if(flag.equals("-n") || flag.equals("--n")){
+                numSentencesToShow =Integer.valueOf(option);
             }
         }
         
@@ -142,8 +147,15 @@ public class Summary {
         }
             
         ArrayList<Sentence> topSentences = new ArrayList<Sentence>();
-        for (int i = 0; i < 5; i++) {
-            topSentences.add(new Sentence(theSentences.get(i)));
+        if(theSentences.size() < numSentencesToShow){
+            for (int i = 0; i < theSentences.size(); i++) {
+                topSentences.add(new Sentence(theSentences.get(i)));
+            }
+        }
+        else{
+            for (int i = 0; i < numSentencesToShow; i++) {
+                topSentences.add(new Sentence(theSentences.get(i)));
+            }
         }
         
         Comparator<Sentence> compareBySentenceNumber = 
